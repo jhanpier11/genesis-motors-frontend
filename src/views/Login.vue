@@ -110,6 +110,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 import { authService } from '@/services/api';
 
 export default {
@@ -146,7 +148,7 @@ export default {
       this.error = '';
 
       try {
-        const response = await authService.login(this.form);
+        const response = await axios.post(`${API_URL}/auth/login`, this.form);
         
         const { token, user } = response.data;
         
@@ -177,7 +179,7 @@ export default {
       this.registerError = '';
 
       try {
-        const response = await authService.register(this.registerForm);
+        const response = await axios.post(`${API_URL}/auth/register`, this.registerForm);
         
         const { token, user } = response.data;
         
