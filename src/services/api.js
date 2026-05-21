@@ -1,9 +1,12 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_APP_API_URL || 'http://localhost:3000/api';
+// usar variable de entorno y fallback a Render
+const API_URL =
+  import.meta.env.VITE_APP_API_URL ||
+  'https://genesis-motors-backend-9nr6.onrender.com/api';
 
 const api = axios.create({
-  baseURL: 'https://genesis-motors-backend-9nr6.onrender.com/api',
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -13,9 +16,11 @@ const api = axios.create({
 api.interceptors.request.use(
   config => {
     const token = localStorage.getItem('token');
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
   error => Promise.reject(error)
@@ -28,8 +33,10 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+
       window.location.href = '/login';
     }
+
     return Promise.reject(error);
   }
 );

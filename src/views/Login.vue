@@ -110,51 +110,58 @@
 </template>
 
 <script>
-import axios from 'axios';
-
 import { authService } from '@/services/api';
 
 export default {
   name: 'LoginView',
+
   data() {
     return {
       form: {
         email: '',
         password: ''
       },
+
       registerForm: {
         nombre: '',
         email: '',
         password: ''
       },
+
       loading: false,
       registerLoading: false,
+
       error: '',
       registerError: '',
+
       showPassword: false,
       showRegister: false,
+
       currentYear: new Date().getFullYear()
     }
   },
+
   mounted() {
     const token = localStorage.getItem('token');
+
     if (token) {
       this.$router.push('/dashboard');
     }
   },
+
   methods: {
     async handleLogin() {
       this.loading = true;
       this.error = '';
 
       try {
-        const response = await axios.post(`${API_URL}/auth/login`, this.form);
-        
+        const response = await authService.login(this.form);
+
         const { token, user } = response.data;
-        
+
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
-        
+
         if (user.rol === 'cliente') {
           this.$router.push('/portal');
         } else if (user.rol === 'mecanico') {
@@ -162,39 +169,60 @@ export default {
         } else {
           this.$router.push('/dashboard');
         }
+
       } catch (err) {
+
         if (err.response?.data?.error) {
           this.error = err.response.data.error;
+
         } else if (err.message === 'Network Error') {
-          this.error = 'Error de conexión. Verifique que el servidor esté funcionando.';
+          this.error =
+            'Error de conexión. Verifique que el servidor esté funcionando.';
+
         } else {
-          this.error = 'Error al iniciar sesión. Intente nuevamente.';
+          this.error =
+            'Error al iniciar sesión. Intente nuevamente.';
         }
+
       } finally {
         this.loading = false;
       }
     },
+
     async handleRegister() {
+
       this.registerLoading = true;
       this.registerError = '';
 
       try {
-        const response = await axios.post(`${API_URL}/auth/register`, this.registerForm);
-        
+
+        const response =
+          await authService.register(this.registerForm);
+
         const { token, user } = response.data;
-        
+
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
-        
+
         this.$router.push('/dashboard');
+
       } catch (err) {
+
         if (err.response?.data?.error) {
-          this.registerError = err.response.data.error;
+          this.registerError =
+            err.response.data.error;
+
         } else if (err.message === 'Network Error') {
-          this.registerError = 'Error de conexión. Verifique que el servidor esté funcionando.';
+
+          this.registerError =
+            'Error de conexión. Verifique que el servidor esté funcionando.';
+
         } else {
-          this.registerError = 'Error al registrarse. Intente nuevamente.';
+
+          this.registerError =
+            'Error al registrarse. Intente nuevamente.';
         }
+
       } finally {
         this.registerLoading = false;
       }
