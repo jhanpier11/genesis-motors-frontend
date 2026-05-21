@@ -237,151 +237,255 @@
 </template>
 
 <script>
-
 import Chart from 'chart.js/auto';
-
 import api from '@/services/api';
 
 export default {
   name: 'Dashboard',
+
   data() {
     return {
+      chart: null,
+
       stats: {
         citasHoy: 0,
         ordenesPendientes: 0,
         ordenesCompletadas: 0,
         clientesNuevos: 0,
-        // Inicializamos los valores para el gráfico
         creadas: 0,
         enProgreso: 0,
         completadas: 0,
         entregadas: 0
       },
+
       recentAppointments: [],
       activeOrders: [],
       recentActivities: [],
+
       currentDate: new Date().toLocaleDateString('es-PE', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
         day: 'numeric'
       })
-    }
+    };
   },
+
   mounted() {
     this.loadDashboardData();
   },
+
   methods: {
+
     async loadDashboardData() {
-        try {
-          const token = localStorage.getItem('token');
 
-          const config = {
-            headers: {
-              Authorization: `Bearer ${token}`
+      try {
+
+        const [
+          statsRes,
+          appointmentsRes,
+          ordersRes
+        ] = await Promise.allSettled([
+
+          api.get('/dashboard/stats'),
+
+          api.get('/appointments', {
+            params: {
+              estado: 'pendiente'
             }
-          };
+          }),
 
-          const [statsRes, appointmentsRes, ordersRes] =
-            await Promise.all([
-            api.get('/dashboard/stats'),
-            api.get('/appointments',{
-            params:{estado:'pendiente'}
-            }),
-            api.get('/work-orders',{
-            params:{estado:'en_progreso'}
-            })
-            ]);
+          api.get('/work-orders', {
+            params: {
+              estado: 'en_progreso'
+            }
+          })
 
-          this.stats =
-            statsRes.data?.stats || {
-              citasHoy: 0,
-              ordenesPendientes: 0,
-              ordenesCompletadas: 0,
-              clientesNuevos: 0,
-              creadas: 0,
-              enProgreso: 0,
-              completadas: 0,
-              entregadas: 0
-            };
+        ]);
 
-          this.recentAppointments =
-            (appointmentsRes.data?.appointments || [])
-            .slice(0, 5);
-
-          this.activeOrders =
-            (ordersRes.data?.workOrders || [])
-            .slice(0, 5);
-
-          this.$nextTick(() => {
-            this.initChart();
-          });
-
-        } catch (error) {
-          console.error(
-            'Error al cargar dashboard:',
-            error
-          );
-
+        if (statsRes.status === 'fulfilled') {
           this.stats = {
-            citasHoy: 0,
-            ordenesPendientes: 0,
-            ordenesCompletadas: 0,
-            clientesNuevos: 0,
-            creadas: 0,
-            enProgreso: 0,
-            completadas: 0,
-            entregadas: 0
+            ...this.stats,
+            ...(statsRes.value.data?.stats || {})
           };
         }
-      },
-    initChart() {
-      const ctx = document.getElementById('ordersChart');
-      if (ctx) {
-        new Chart(ctx, {
-          type: 'doughnut',
-          data: {
-            labels: ['Creadas', 'En Progreso', 'Completadas', 'Entregadas'],
-            datasets: [{
-              data: [
-                this.stats.creadas || 0, 
-                this.stats.enProgreso || 0, 
-                this.stats.completadas || 0, 
-                this.stats.entregadas || 0
-              ],
-              backgroundColor: ['#6c757d', '#ffc107', '#28a745', '#007bff']
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: { position: 'bottom' }
-            }
-          }
+
+        if (appointmentsRes.status === 'fulfilled') {
+          this.recentAppointments =
+            (appointmentsRes.value.data?.appointments || [])
+              .slice(0, 5);
+        } else {
+          this.recentAppointments = [];
+        }
+
+        if (ordersRes.status === 'fulfilled') {
+          this.activeOrders =
+            (ordersRes.value.data?.workOrders || [])
+              .slice(0, 5);
+        } else {
+          this.activeOrders = [];
+        }
+
+        this.$nextTick(() => {
+          this.initChart();
         });
+
+      } catch (error) {
+
+        console.error(
+          'Error general dashboard:',
+          error
+        );
+
       }
+
     },
+
+    initChart() {
+
+      const canvas =
+        document.getElementById('ordersChart');
+
+      if (!canvas) return;
+
+      if (this.chart) {
+        this.chart.destroy();
+      }
+
+      this.chart = new Chart(canvas, {
+
+        type: 'doughnut',
+
+        data: {
+
+          labels: [
+            'Creadas',
+            'En Progreso',
+            'Completadas',
+            'Entregadas'
+          ],
+
+          datasets: [
+
+            {
+
+              data: [
+
+                Number(this.stats.creadas || 0),
+
+                Number(
+                  this.stats.enProgreso || 0
+                ),
+
+                Number(
+                  this.stats.completadas || 0
+                ),
+
+                Number(
+                  this.stats.entregadas || 0
+                )
+
+              ],
+
+              backgroundColor: [
+                '#6c757d',
+                '#ffc107',
+                '#28a745',
+                '#007bff'
+              ]
+
+            }
+
+          ]
+
+        },
+
+        options: {
+
+          responsive: true,
+
+          maintainAspectRatio: false,
+
+          plugins: {
+
+            legend: {
+              position: 'bottom'
+            }
+
+          }
+
+        }
+
+      });
+
+    },
+
     getStatusClass(status) {
+
       const classes = {
-        'pendiente': 'bg-warning text-dark',
-        'confirmada': 'bg-info',
-        'en_progreso': 'bg-primary',
-        'completada': 'bg-success',
-        'cancelada': 'bg-danger'
+
+        pendiente:
+          'bg-warning text-dark',
+
+        confirmada:
+          'bg-info',
+
+        en_progreso:
+          'bg-primary',
+
+        completada:
+          'bg-success',
+
+        cancelada:
+          'bg-danger'
+
       };
-      return classes[status] || 'bg-secondary';
+
+      return (
+        classes[status] ||
+        'bg-secondary'
+      );
+
     },
+
     getOrderStatusClass(status) {
+
       const classes = {
-        'creada': 'bg-secondary',
-        'en_progreso': 'bg-warning text-dark',
-        'completada': 'bg-success',
-        'entregada': 'bg-info',
-        'cancelada': 'bg-danger'
+
+        creada:
+          'bg-secondary',
+
+        en_progreso:
+          'bg-warning text-dark',
+
+        completada:
+          'bg-success',
+
+        entregada:
+          'bg-info',
+
+        cancelada:
+          'bg-danger'
+
       };
-      return classes[status] || 'bg-secondary';
+
+      return (
+        classes[status] ||
+        'bg-secondary'
+      );
+
     }
+
+  },
+
+  beforeUnmount() {
+
+    if (this.chart) {
+      this.chart.destroy();
+    }
+
   }
+
 }
 </script>
 

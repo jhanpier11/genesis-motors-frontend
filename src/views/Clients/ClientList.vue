@@ -236,23 +236,16 @@ export default {
         '¿Eliminar cliente?',
         'Esta acción no se puede deshacer'
         );
-
         if (!result.isConfirmed) return;
-
         try {
-
         await api.delete(`/clients/${id}`);
-
         await this.loadClients();
-
         swal.success(
         'Eliminado',
         'Cliente eliminado correctamente'
         );
-
         }
         catch(err){
-
         console.log(err);
 
         swal.error(
