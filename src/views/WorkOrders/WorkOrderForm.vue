@@ -46,9 +46,9 @@
 </template>
 
 <script>
-import axios from 'axios';
+import api from '@/services/api';
 
-const API_URL = 'import.meta.env.VITE_APP_API_URL';
+const API_URL = process.env.VUE_APP_API_URL;
 
 export default {
   name: 'WorkOrderForm',
@@ -73,7 +73,7 @@ export default {
     async loadVehicles() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`${API_URL}/vehicles`, {
+        const response = await api.get(`${API_URL}/vehicles`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         this.vehicles = response.data.vehicles;
@@ -84,7 +84,7 @@ export default {
     async loadMechanics() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`${API_URL}/users/mechanics`, {
+        const response = await api.get(`${API_URL}/users/mechanics`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         this.mechanics = response.data.mechanics;

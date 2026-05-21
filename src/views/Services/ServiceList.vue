@@ -93,9 +93,9 @@
 </template>
 
 <script>
-import axios from 'axios';
+import api from '@/services/api';
 
-const API_URL = 'import.meta.env.VITE_APP_API_URL';
+const API_URL = process.env.VUE_APP_API_URL;
 
 export default {
   name: 'ServiceList',
@@ -127,7 +127,7 @@ export default {
     async loadServices() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`${API_URL}/services`, {
+        const response = await api.get('/services', {
           headers: { Authorization: `Bearer ${token}` }
         });
         this.services = response.data.services;

@@ -39,9 +39,9 @@
 </template>
 
 <script>
-import axios from 'axios';
+import api from '@/services/api';
 
-const API_URL = 'import.meta.env.VITE_APP_API_URL';
+const API_URL = process.env.VUE_APP_API_URL;
 
 export default {
   name: 'ClientOrders',
@@ -55,7 +55,7 @@ export default {
     async loadOrders() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`${API_URL}/client-portal/orders`, {
+        const response = await api.get(`${API_URL}/client-portal/orders`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         this.orders = response.data.workOrders || [];

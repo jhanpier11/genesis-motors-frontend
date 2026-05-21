@@ -98,9 +98,9 @@
 </template>
 
 <script>
-import axios from 'axios';
+import api from '@/services/api';
 
-const API_URL = 'import.meta.env.VITE_APP_API_URL';
+const API_URL = process.env.VUE_APP_API_URL;
 
 export default {
   name: 'RegisterView',

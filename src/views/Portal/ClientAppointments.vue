@@ -42,9 +42,9 @@
 </template>
 
 <script>
-import axios from 'axios';
+import api from '@/services/api';
 
-const API_URL = 'import.meta.env.VITE_APP_API_URL';
+const API_URL = process.env.VUE_APP_API_URL;
 
 export default {
   name: 'ClientAppointments',
@@ -58,7 +58,7 @@ export default {
     async loadAppointments() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`${API_URL}/client-portal/appointments`, {
+        const response = await api.get(`${API_URL}/client-portal/appointments`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         this.appointments = response.data.appointments || [];

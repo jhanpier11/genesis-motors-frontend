@@ -16,13 +16,13 @@
 </template>
 
 <script>
-import axios from 'axios';
+import api from '@/services/api';
 import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 
-const API_URL = 'import.meta.env.VITE_APP_API_URL';
+const API_URL = process.env.VUE_APP_API_URL;
 
 export default {
   name: 'AppointmentCalendar',
@@ -39,7 +39,7 @@ export default {
       const token = localStorage.getItem('token');
       
       // Cargar citas
-      const response = await axios.get(`${API_URL}/appointments`, {
+      const response = await api.get(`${API_URL}/appointments`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

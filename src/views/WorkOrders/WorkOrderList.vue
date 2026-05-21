@@ -84,9 +84,9 @@
 </template>
 
 <script>
-import axios from 'axios';
+import api from '@/services/api';
 
-const API_URL = 'import.meta.env.VITE_APP_API_URL';
+const API_URL = process.env.VUE_APP_API_URL;
 
 export default {
   name: 'WorkOrderList',
@@ -108,7 +108,7 @@ export default {
         const params = {};
         if (this.filters.estado) params.estado = this.filters.estado;
         
-        const response = await axios.get(`${API_URL}/work-orders`, {
+        const response = await api.get('/work-orders', {
           headers: { Authorization: `Bearer ${token}` },
           params
         });

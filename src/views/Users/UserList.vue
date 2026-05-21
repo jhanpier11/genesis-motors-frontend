@@ -118,9 +118,9 @@
 </template>
 
 <script>
-import axios from 'axios';
+import api from '@/services/api';
 
-const API_URL = 'import.meta.env.VITE_APP_API_URL';
+const API_URL = process.env.VUE_APP_API_URL;
 
 export default {
   name: 'UserList',
@@ -147,7 +147,7 @@ export default {
     async loadUsers() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`${API_URL}/users`, {
+        const response = await api.get('/users', {
           headers: { Authorization: `Bearer ${token}` }
         });
         this.users = response.data.users;

@@ -95,9 +95,9 @@
 </template>
 
 <script>
-import axios from 'axios';
+import api from '@/services/api';
 
-const API_URL = 'import.meta.env.VITE_APP_API_URL';
+const API_URL = process.env.VUE_APP_API_URL;
 
 export default {
   name: 'AppointmentList',
@@ -122,7 +122,7 @@ export default {
         if (this.filters.fecha) params.fecha = this.filters.fecha;
         if (this.filters.estado) params.estado = this.filters.estado;
         
-        const response = await axios.get(`${API_URL}/appointments`, {
+        const response = await api.get('/appointments', {
           headers: { Authorization: `Bearer ${token}` },
           params
         });

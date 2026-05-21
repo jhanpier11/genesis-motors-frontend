@@ -296,9 +296,9 @@
 </template>
 
 <script>
-import axios from 'axios';
+import api from '@/services/api';
 
-const API_URL = 'import.meta.env.VITE_APP_API_URL';
+const API_URL = process.env.VUE_APP_API_URL;
 
 export default {
   name: 'WorkOrderDetail',
@@ -364,7 +364,7 @@ export default {
       this.loading = true;
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`${API_URL}/work-orders/${this.$route.params.id}`, {
+        const response = await api.get(`${API_URL}/work-orders/${this.$route.params.id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         this.workOrder = response.data.workOrder;
@@ -378,7 +378,7 @@ export default {
     async loadMechanics() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`${API_URL}/users/mechanics`, {
+        const response = await api.get(`${API_URL}/users/mechanics`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         this.mechanics = response.data.mechanics || [];
@@ -389,7 +389,7 @@ export default {
     async loadServices() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`${API_URL}/services`, {
+        const response = await api.get(`${API_URL}/services`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         this.availableServices = response.data.services || [];

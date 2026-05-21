@@ -237,10 +237,10 @@
 </template>
 
 <script>
-import axios from 'axios';
+
 import Chart from 'chart.js/auto';
 
-const API_URL = import.meta.env.VITE_APP_API_URL;
+import api from '@/services/api';
 
 export default {
   name: 'Dashboard',
@@ -284,27 +284,13 @@ export default {
 
           const [statsRes, appointmentsRes, ordersRes] =
             await Promise.all([
-              axios.get(`${API_URL}/dashboard/stats`, config),
-
-              axios.get(
-                `${API_URL}/appointments`,
-                {
-                  ...config,
-                  params: {
-                    estado: 'pendiente'
-                  }
-                }
-              ),
-
-              axios.get(
-                `${API_URL}/work-orders`,
-                {
-                  ...config,
-                  params: {
-                    estado: 'en_progreso'
-                  }
-                }
-              )
+            api.get('/dashboard/stats'),
+            api.get('/appointments',{
+            params:{estado:'pendiente'}
+            }),
+            api.get('/work-orders',{
+            params:{estado:'en_progreso'}
+            })
             ]);
 
           this.stats =

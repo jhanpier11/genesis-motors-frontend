@@ -106,10 +106,10 @@
 </template>
 
 <script>
-import axios from 'axios';
+
 import { swal } from '@/services/swal';
 
-const API_URL = 'import.meta.env.VITE_APP_API_URL';
+import api from '@/services/api';
 
 export default {
   name: 'ClientList',
@@ -136,7 +136,7 @@ export default {
     async loadClients() {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`${API_URL}/clients`, {
+        const response = await api.get('/clients', {
           headers: { Authorization: `Bearer ${token}` },
           params: { search: this.search }
         });
