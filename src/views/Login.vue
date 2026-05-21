@@ -138,7 +138,7 @@ export default {
       showRegister: false,
 
       currentYear: new Date().getFullYear()
-    }
+    };
   },
 
   mounted() {
@@ -150,41 +150,64 @@ export default {
   },
 
   methods: {
+
     async handleLogin() {
+
       this.loading = true;
       this.error = '';
 
       try {
-        const response = await authService.login(this.form);
 
-        const { token, user } = response.data;
+        const response =
+          await authService.login(this.form);
 
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
+        const { token, user } =
+          response.data;
+
+        if (!token || !user) {
+          throw new Error('Respuesta inválida');
+        }
+
+        localStorage.setItem(
+          'token',
+          token
+        );
+
+        localStorage.setItem(
+          'user',
+          JSON.stringify(user)
+        );
 
         if (user.rol === 'cliente') {
+
           this.$router.push('/portal');
-        } else if (user.rol === 'mecanico') {
+
+        } else if (
+          user.rol === 'mecanico'
+        ) {
+
           this.$router.push('/work-orders');
+
         } else {
+
           this.$router.push('/dashboard');
         }
 
       } catch (err) {
 
-        if (err.response?.data?.error) {
-          this.error = err.response.data.error;
+        console.log('LOGIN ERROR:', err);
+        console.log('RESPONSE:', err.response);
+        console.log('DATA:', err.response?.data);
 
-        } else if (err.message === 'Network Error') {
-          this.error =
-            'Error de conexión. Verifique que el servidor esté funcionando.';
-
-        } else {
-          this.error =
-            'Error al iniciar sesión. Intente nuevamente.';
-        }
+        this.error =
+          err.response?.data?.error ||
+          err.response?.data?.message ||
+          (err.message === 'Network Error'
+            ? 'Error de conexión. Verifique el servidor.'
+            : 'Error al iniciar sesión');
 
       } finally {
+
         this.loading = false;
       }
     },
@@ -192,43 +215,79 @@ export default {
     async handleRegister() {
 
       this.registerLoading = true;
+
       this.registerError = '';
 
       try {
 
+        if (
+          !this.registerForm.nombre ||
+          !this.registerForm.email ||
+          !this.registerForm.password
+        ) {
+
+          this.registerError =
+            'Complete todos los campos';
+
+          return;
+        }
+
+        if (
+          this.registerForm.password.length < 6
+        ) {
+
+          this.registerError =
+            'La contraseña debe tener mínimo 6 caracteres';
+
+          return;
+        }
+
         const response =
-          await authService.register(this.registerForm);
+          await authService.register(
+            this.registerForm
+          );
 
-        const { token, user } = response.data;
+        const { token, user } =
+          response.data;
 
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
+        if (!token || !user) {
+          throw new Error(
+            'Respuesta inválida'
+          );
+        }
+
+        localStorage.setItem(
+          'token',
+          token
+        );
+
+        localStorage.setItem(
+          'user',
+          JSON.stringify(user)
+        );
 
         this.$router.push('/dashboard');
 
       } catch (err) {
 
-        if (err.response?.data?.error) {
-          this.registerError =
-            err.response.data.error;
+        console.log('REGISTER ERROR:', err);
+        console.log('RESPONSE:', err.response);
+        console.log('DATA:', err.response?.data);
 
-        } else if (err.message === 'Network Error') {
-
-          this.registerError =
-            'Error de conexión. Verifique que el servidor esté funcionando.';
-
-        } else {
-
-          this.registerError =
-            'Error al registrarse. Intente nuevamente.';
-        }
+        this.registerError =
+          err.response?.data?.error ||
+          err.response?.data?.message ||
+          (err.message === 'Network Error'
+            ? 'Error de conexión. Verifique el servidor.'
+            : 'Error al registrarse');
 
       } finally {
+
         this.registerLoading = false;
       }
     }
   }
-}
+};
 </script>
 
 <style scoped>
