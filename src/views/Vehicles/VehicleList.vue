@@ -220,10 +220,9 @@
 <script>
 import api from '@/services/api';
 
-const API_URL = process.env.VUE_APP_API_URL;
-
 export default {
   name: 'VehicleList',
+
   data() {
     return {
       vehicles: [],
@@ -237,6 +236,7 @@ export default {
       loading: false,
       error: '',
       currentYear: new Date().getFullYear(),
+
       form: {
         cliente_id: '',
         placa: '',
@@ -247,74 +247,149 @@ export default {
         kilometraje: '',
         vin: ''
       }
-    }
+    };
   },
+
   created() {
     this.loadVehicles();
     this.loadClients();
   },
+
   methods: {
+
     async loadVehicles() {
+
       try {
-        const token = localStorage.getItem('token');
+
         const params = {};
-        if (this.filterClient) params.cliente_id = this.filterClient;
-        
-        const response = await api.get('/vehicles', {
-          headers: { Authorization: `Bearer ${token}` },
-          params
-        });
-        this.vehicles = response.data.vehicles;
+
+        if (this.filterClient) {
+          params.cliente_id =
+            this.filterClient;
+        }
+
+        const response =
+          await api.get(
+            '/vehicles',
+            { params }
+          );
+
+        this.vehicles =
+          response.data?.vehicles || [];
+
         this.filterVehicles();
+
       } catch (error) {
-        console.error('Error al cargar vehículos:', error);
-      }
-    },
-    async loadClients() {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await api.get('/clients', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        this.clients = response.data.clients;
-      } catch (error) {
-        console.error('Error al cargar clientes:', error);
-      }
-    },
-    filterVehicles() {
-      if (!this.search) {
-        this.filteredVehicles = this.vehicles;
-      } else {
-        const searchLower = this.search.toLowerCase();
-        this.filteredVehicles = this.vehicles.filter(v => 
-          v.placa.toLowerCase().includes(searchLower) ||
-          v.marca.toLowerCase().includes(searchLower) ||
-          v.modelo.toLowerCase().includes(searchLower)
+
+        console.log(error);
+
+        alert(
+          error.response?.data?.error ||
+          'Error cargando vehículos'
         );
       }
     },
+
+    async loadClients() {
+
+      try {
+
+        const response =
+          await api.get('/clients');
+
+        this.clients =
+          response.data?.clients || [];
+
+      } catch (error) {
+
+        console.log(error);
+
+        alert(
+          error.response?.data?.error ||
+          'Error cargando clientes'
+        );
+      }
+    },
+
+    filterVehicles() {
+
+      if (!this.search) {
+
+        this.filteredVehicles =
+          this.vehicles;
+
+        return;
+      }
+
+      const text =
+        this.search.toLowerCase();
+
+      this.filteredVehicles =
+        this.vehicles.filter(v =>
+
+          v.placa?.toLowerCase().includes(text) ||
+
+          v.marca?.toLowerCase().includes(text) ||
+
+          v.modelo?.toLowerCase().includes(text)
+
+        );
+    },
+
     editVehicle(vehicle) {
-      this.editingVehicle = vehicle;
+
+      this.editingVehicle =
+        vehicle;
+
       this.form = {
-        cliente_id: vehicle.cliente_id,
-        placa: vehicle.placa,
-        marca: vehicle.marca,
-        modelo: vehicle.modelo,
-        anio: vehicle.anio,
-        color: vehicle.color || '',
-        kilometraje: vehicle.kilometraje || '',
-        vin: vehicle.vin || ''
+
+        cliente_id:
+          vehicle.cliente_id,
+
+        placa:
+          vehicle.placa,
+
+        marca:
+          vehicle.marca,
+
+        modelo:
+          vehicle.modelo,
+
+        anio:
+          vehicle.anio,
+
+        color:
+          vehicle.color || '',
+
+        kilometraje:
+          vehicle.kilometraje || '',
+
+        vin:
+          vehicle.vin || ''
       };
+
       this.showForm = true;
     },
+
     viewVehicle(vehicle) {
-      this.viewingVehicle = vehicle;
+
+      this.viewingVehicle =
+        vehicle;
     },
+
     closeForm() {
-      this.showForm = false;
-      this.editingVehicle = null;
-      this.error = '';
+
+      this.showForm =
+        false;
+
+      this.editingVehicle =
+        null;
+
+      this.error =
+        '';
+
       this.form = {
+
         cliente_id: '',
         placa: '',
         marca: '',
@@ -325,48 +400,106 @@ export default {
         vin: ''
       };
     },
+
     async saveVehicle() {
+
       this.loading = true;
+
       this.error = '';
-      
+
       try {
-        const token = localStorage.getItem('token');
-        const config = { headers: { Authorization: `Bearer ${token}` } };
-        
+
         if (this.editingVehicle) {
-          await axios.put(`${API_URL}/vehicles/${this.editingVehicle.id}`, this.form, config);
+
+          await api.put(
+            `/vehicles/${this.editingVehicle.id}`,
+            this.form
+          );
+
         } else {
-          await axios.post(`${API_URL}/vehicles`, this.form, config);
+
+          await api.post(
+            '/vehicles',
+            this.form
+          );
         }
-        
+
         this.closeForm();
+
         await this.loadVehicles();
+
       } catch (err) {
-        this.error = err.response?.data?.error || 'Error al guardar vehículo';
+
+        console.log('SAVE ERROR:', err);
+
+        console.log(
+          err.response?.data
+        );
+
+        this.error =
+          err.response?.data?.error ||
+
+          err.response?.data?.message ||
+
+          'Error al guardar vehículo';
+
       } finally {
+
         this.loading = false;
       }
     },
+
     async deleteVehicle(id) {
-      if (!confirm('¿Está seguro de eliminar este vehículo? Esta acción no se puede deshacer.')) return;
-      
+
+      if (
+        !confirm(
+          '¿Eliminar vehículo?'
+        )
+      ) {
+        return;
+      }
+
       try {
-        const token = localStorage.getItem('token');
-        await axios.delete(`${API_URL}/vehicles/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+
+        await api.delete(
+          `/vehicles/${id}`
+        );
+
         await this.loadVehicles();
-        alert('Vehículo eliminado exitosamente');
+
+        alert(
+          'Vehículo eliminado exitosamente'
+        );
+
       } catch (error) {
-        alert('Error al eliminar vehículo: ' + (error.response?.data?.error || 'Error desconocido'));
+
+        alert(
+
+          error.response?.data?.error ||
+
+          'Error eliminando vehículo'
+        );
       }
     },
+
     formatKilometraje(km) {
-      if (!km) return 'N/A';
-      return km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' km';
+
+      if (!km) {
+        return 'N/A';
+      }
+
+      return (
+        km
+          .toString()
+          .replace(
+            /\B(?=(\d{3})+(?!\d))/g,
+            ','
+          ) +
+        ' km'
+      );
     }
   }
-}
+};
 </script>
 
 <style scoped>
