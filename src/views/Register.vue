@@ -100,10 +100,9 @@
 <script>
 import api from '@/services/api';
 
-const API_URL = process.env.VUE_APP_API_URL;
-
 export default {
   name: 'RegisterView',
+
   data() {
     return {
       form: {
@@ -113,53 +112,118 @@ export default {
         password: '',
         confirmPassword: ''
       },
+
       loading: false,
       error: '',
       success: '',
       showPassword: false
     }
   },
+
   methods: {
+
     async handleRegister() {
+
       this.error = '';
       this.success = '';
-      
-      if (this.form.password !== this.form.confirmPassword) {
-        this.error = 'Las contraseñas no coinciden';
+
+      if (
+        this.form.password !==
+        this.form.confirmPassword
+      ) {
+        this.error =
+          'Las contraseñas no coinciden';
         return;
       }
-      
-      if (this.form.password.length < 6) {
-        this.error = 'La contraseña debe tener al menos 6 caracteres';
+
+      if (
+        this.form.password.length < 6
+      ) {
+        this.error =
+          'La contraseña debe tener al menos 6 caracteres';
         return;
       }
-      
+
       this.loading = true;
-      
+
       try {
-        const response = await axios.post(`${API_URL}/auth/register-client`, {
-          nombre: this.form.nombre,
-          email: this.form.email,
-          telefono: this.form.telefono,
-          password: this.form.password
-        });
-        
-        const { token, user } = response.data;
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
-        
-        this.success = '¡Cuenta creada exitosamente! Redirigiendo a tu portal...';
+
+        const response =
+          await api.post(
+            '/auth/register-client',
+            {
+              nombre:
+                this.form.nombre,
+
+              email:
+                this.form.email,
+
+              telefono:
+                this.form.telefono,
+
+              password:
+                this.form.password
+            }
+          );
+
+        const {
+          token,
+          user
+        } = response.data;
+
+        if (token) {
+          localStorage.setItem(
+            'token',
+            token
+          );
+        }
+
+        if (user) {
+          localStorage.setItem(
+            'user',
+            JSON.stringify(user)
+          );
+        }
+
+        this.success =
+          '¡Cuenta creada exitosamente!';
+
         setTimeout(() => {
-          this.$router.push('/portal');
-        }, 2000);
-        
-      } catch (err) {
-        this.error = err.response?.data?.error || 'Error al crear la cuenta';
-      } finally {
-        this.loading = false;
+
+          this.$router.push(
+            '/portal'
+          );
+
+        }, 1200);
+
       }
+
+      catch (err) {
+
+        console.log(
+          err.response?.data
+        );
+
+        this.error =
+
+          err.response?.data?.error ||
+
+          err.response?.data?.message ||
+
+          'Error al crear la cuenta';
+
+      }
+
+      finally {
+
+        this.loading = false;
+
+      }
+
     }
+
   }
+
 }
 </script>
 
