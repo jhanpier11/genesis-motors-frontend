@@ -1,18 +1,16 @@
 import axios from 'axios';
 
-// Le devolvemos el /api al final porque tu backend lo necesita obligatoriamente
-const API_URL = 'https://genesis-motors-backend-9nr6.onrender.com/api';
+const API_URL =
+  process.env.VUE_APP_API_URL ||
+  'https://genesis-motors-backend-9nr6.onrender.com/api';
 
 const api = axios.create({
   baseURL: API_URL,
   timeout: 15000,
-  withCredentials: true, // 👈 Dejamos esto puesto para evitar que vuelva el error 403
   headers: {
     'Content-Type': 'application/json'
   }
 });
-
-// TODO LO DEMÁS DE ABAJO (interceptores, authService, etc.) SE QUEDA EXACTAMENTE IGUAL...
 
 api.interceptors.request.use(
 (config)=>{
