@@ -430,20 +430,32 @@ export default {
 
       } catch (err) {
 
-        console.log('SAVE ERROR:', err);
+  console.log('ERROR COMPLETO:', err);
 
-        console.log(
-          err.response?.data
-        );
+  console.log('STATUS:',
+    err.response?.status
+  );
 
-        this.error =
-          err.response?.data?.error ||
+  console.log('DATA:',
+    err.response?.data
+  );
 
-          err.response?.data?.message ||
+  alert(
+    JSON.stringify(
+      err.response?.data ||
+      err.message,
+      null,
+      2
+    )
+  );
 
-          'Error al guardar vehículo';
+  this.error =
+    err.response?.data?.error ||
 
-      } finally {
+    err.response?.data?.message ||
+
+    'Error al guardar vehículo';
+} finally {
 
         this.loading = false;
       }
