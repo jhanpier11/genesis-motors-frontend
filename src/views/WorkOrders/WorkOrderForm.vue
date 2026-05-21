@@ -48,16 +48,16 @@
 <script>
 import api from '@/services/api';
 
-const API_URL = process.env.VUE_APP_API_URL;
-
 export default {
   name: 'WorkOrderForm',
+
   data() {
     return {
       vehicles: [],
       mechanics: [],
       loading: false,
       error: '',
+
       form: {
         vehiculo_id: '',
         mecanico_id: '',
@@ -65,50 +65,99 @@ export default {
       }
     }
   },
+
   created() {
     this.loadVehicles();
     this.loadMechanics();
   },
+
   methods: {
+
     async loadVehicles() {
+
       try {
-        const token = localStorage.getItem('token');
-        const response = await api.get(`${API_URL}/vehicles`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        this.vehicles = response.data.vehicles;
+
+        const response =
+          await api.get('/vehicles');
+
+        this.vehicles =
+          response.data?.vehicles || [];
+
       } catch (error) {
-        console.error('Error al cargar vehículos:', error);
+
+        console.error(
+          'Error al cargar vehículos:',
+          error
+        );
+
       }
+
     },
+
     async loadMechanics() {
+
       try {
-        const token = localStorage.getItem('token');
-        const response = await api.get(`${API_URL}/users/mechanics`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        this.mechanics = response.data.mechanics;
+
+        const response =
+          await api.get('/users/mechanics');
+
+        this.mechanics =
+          response.data?.mechanics || [];
+
       } catch (error) {
-        console.error('Error al cargar mecánicos:', error);
+
+        console.error(
+          'Error al cargar mecánicos:',
+          error
+        );
+
       }
+
     },
+
     async saveWorkOrder() {
+
       this.loading = true;
+
       this.error = '';
 
       try {
-        const token = localStorage.getItem('token');
-        await axios.post(`${API_URL}/work-orders`, this.form, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
-        this.$router.push('/work-orders');
+
+        console.log(
+          'Enviando orden:',
+          this.form
+        );
+
+        await api.post(
+          '/work-orders',
+          this.form
+        );
+
+        this.$router.push(
+          '/work-orders'
+        );
+
       } catch (err) {
-        this.error = err.response?.data?.error || 'Error al crear orden';
+
+        console.log(
+          'ERROR:',
+          err.response?.data
+        );
+
+        this.error =
+          err.response?.data?.error ||
+          err.response?.data?.message ||
+          'Error al crear orden';
+
       } finally {
+
         this.loading = false;
+
       }
+
     }
+
   }
+
 }
 </script>
