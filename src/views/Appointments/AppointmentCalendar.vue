@@ -22,7 +22,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'import.meta.env.VITE_APP_API_URL';
 
 export default {
   name: 'AppointmentCalendar',
