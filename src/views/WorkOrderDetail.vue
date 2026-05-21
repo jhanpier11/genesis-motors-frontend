@@ -296,9 +296,7 @@
 </template>
 
 <script>
-import api from '@/services/api';
-
-const API_URL = process.env.VUE_APP_API_URL;
+import { workOrderService, userService, serviceService } from '@/services/api';
 
 export default {
   name: 'WorkOrderDetail',
@@ -363,10 +361,7 @@ export default {
     async loadWorkOrder() {
       this.loading = true;
       try {
-        const token = localStorage.getItem('token');
-        const response = await api.get(`${API_URL}/work-orders/${this.$route.params.id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await workOrderService.getById(this.$route.params.id);
         this.workOrder = response.data.workOrder;
       } catch (error) {
         console.error('Error al cargar orden:', error);
@@ -377,10 +372,7 @@ export default {
     },
     async loadMechanics() {
       try {
-        const token = localStorage.getItem('token');
-        const response = await api.get(`${API_URL}/users/mechanics`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await userService.getMechanics();
         this.mechanics = response.data.mechanics || [];
       } catch (error) {
         console.error('Error al cargar mecánicos:', error);
@@ -388,10 +380,7 @@ export default {
     },
     async loadServices() {
       try {
-        const token = localStorage.getItem('token');
-        const response = await api.get(`${API_URL}/services`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await serviceService.getAll();
         this.availableServices = response.data.services || [];
       } catch (error) {
         console.error('Error al cargar servicios:', error);
@@ -399,27 +388,17 @@ export default {
     },
     async updateStatus(estado) {
       try {
-        const token = localStorage.getItem('token');
-        await axios.patch(`${API_URL}/work-orders/${this.workOrder.id}/status`, 
-          { estado },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        await workOrderService.updateStatus(this.workOrder.id, { estado });
         await this.loadWorkOrder();
         alert('Estado actualizado correctamente');
       } catch (err) {
-        console.error('Error al actualizar estado:', err);
         alert(err.response?.data?.error || 'Error al actualizar estado');
       }
     },
     async assignMechanic() {
       if (!this.selectedMechanic) return;
-      
       try {
-        const token = localStorage.getItem('token');
-        await axios.patch(`${API_URL}/work-orders/${this.workOrder.id}/assign`,
-          { mecanico_id: this.selectedMechanic },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        await workOrderService.assignMechanic(this.workOrder.id, this.selectedMechanic);
         this.selectedMechanic = '';
         await this.loadWorkOrder();
         alert('Mecánico asignado exitosamente');
@@ -429,13 +408,8 @@ export default {
     },
     async updateDiagnosis() {
       if (!this.newDiagnosis) return;
-      
       try {
-        const token = localStorage.getItem('token');
-        await axios.patch(`${API_URL}/work-orders/${this.workOrder.id}/status`,
-          { diagnostico: this.newDiagnosis },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        await workOrderService.updateStatus(this.workOrder.id, { diagnostico: this.newDiagnosis });
         this.newDiagnosis = '';
         await this.loadWorkOrder();
         alert('Diagnóstico actualizado');
@@ -445,13 +419,8 @@ export default {
     },
     async updateNotes() {
       if (!this.newNotes) return;
-      
       try {
-        const token = localStorage.getItem('token');
-        await axios.patch(`${API_URL}/work-orders/${this.workOrder.id}/status`,
-          { notas_internas: this.newNotes },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        await workOrderService.updateStatus(this.workOrder.id, { notas_internas: this.newNotes });
         this.newNotes = '';
         await this.loadWorkOrder();
         alert('Notas actualizadas');
@@ -461,13 +430,8 @@ export default {
     },
     async addService() {
       if (!this.newService.servicio_id) return;
-      
       try {
-        const token = localStorage.getItem('token');
-        await axios.post(`${API_URL}/work-orders/${this.workOrder.id}/services`,
-          { servicios: [this.newService] },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        await workOrderService.addServices(this.workOrder.id, [this.newService]);
         this.showAddService = false;
         this.newService = { servicio_id: '', precio_cobrado: '', notas: '' };
         await this.loadWorkOrder();

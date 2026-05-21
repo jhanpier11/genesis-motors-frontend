@@ -182,19 +182,16 @@ export const serviceService = {
 // ======================
 
 export const userService = {
-  getAll: () =>
-    api.get('/users'),
+  getAll: () => api.get('/users'),
+  create: (data) => api.post('/users', data),
+  update: (id, data) => api.put(`/users/${id}`, data),
+  delete: (id) => api.delete(`/users/${id}`),
+  getMechanics: () => api.get('/users/mechanics'),
 
-  create: (data) =>
-    api.post('/users', data),
-
-  update: (id, data) =>
-    api.put(`/users/${id}`, data),
-
-  delete: (id) =>
-    api.delete(`/users/${id}`)
+  // NUEVOS MÉTODOS PARA PERFIL
+  updateProfile: (data) => api.put('/users/profile/update', data),
+  changePassword: (data) => api.put('/users/change-password', data)
 };
-
 // ======================
 // DASHBOARD
 // ======================

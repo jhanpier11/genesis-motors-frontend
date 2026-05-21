@@ -89,9 +89,7 @@
 </template>
 
 <script>
-import api from '@/services/api';
-
-const API_URL = process.env.VUE_APP_API_URL;
+import { clientPortalService } from '@/services/api';
 
 export default {
   name: 'ClientHome',
@@ -109,10 +107,7 @@ export default {
   methods: {
     async loadAppointments() {
       try {
-        const token = localStorage.getItem('token');
-        const response = await api.get(`${API_URL}/client-portal/appointments`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await clientPortalService.getMyAppointments();
         this.nextAppointments = (response.data.appointments || []).slice(0, 5);
       } catch (error) {
         console.error('Error:', error);

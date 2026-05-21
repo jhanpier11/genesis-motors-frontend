@@ -99,9 +99,7 @@
 </template>
 
 <script>
-import api from '@/services/api';
-
-const API_URL = process.env.VUE_APP_API_URL;
+import { userService } from '@/services/api';
 
 export default {
   name: 'ProfileView',
@@ -136,17 +134,14 @@ export default {
     async updateProfile() {
       this.profileLoading = true;
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.put(`${API_URL}/users/profile/update`, this.profile, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
+        await userService.updateProfile(this.profile);
+
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         user.nombre = this.profile.nombre;
         user.email = this.profile.email;
         user.telefono = this.profile.telefono;
         localStorage.setItem('user', JSON.stringify(user));
-        
+
         alert('Perfil actualizado correctamente');
       } catch (error) {
         alert(error.response?.data?.error || 'Error al actualizar perfil');
@@ -159,22 +154,19 @@ export default {
         alert('Las contraseñas no coinciden');
         return;
       }
-      
+
       if (this.passwordForm.newPassword.length < 6) {
         alert('La contraseña debe tener al menos 6 caracteres');
         return;
       }
-      
+
       this.passwordLoading = true;
       try {
-        const token = localStorage.getItem('token');
-        await axios.put(`${API_URL}/users/change-password`, {
+        await userService.changePassword({
           currentPassword: this.passwordForm.currentPassword,
           newPassword: this.passwordForm.newPassword
-        }, {
-          headers: { Authorization: `Bearer ${token}` }
         });
-        
+
         this.passwordForm = { currentPassword: '', newPassword: '', confirmPassword: '' };
         alert('Contraseña cambiada exitosamente');
       } catch (error) {

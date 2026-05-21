@@ -218,7 +218,7 @@
 </template>
 
 <script>
-import api from '@/services/api';
+import { vehicleService, clientService } from '@/services/api';
 
 export default {
   name: 'VehicleList',
@@ -258,31 +258,17 @@ export default {
   methods: {
 
     async loadVehicles() {
-
       try {
-
         const params = {};
-
         if (this.filterClient) {
-          params.cliente_id =
-            this.filterClient;
+          params.cliente_id = this.filterClient;
         }
 
-        const response =
-          await api.get(
-            '/vehicles',
-            { params }
-          );
-
-        this.vehicles =
-          response.data?.vehicles || [];
-
+        const response = await vehicleService.getAll(params);
+        this.vehicles = response.data?.vehicles || [];
         this.filterVehicles();
-
       } catch (error) {
-
         console.log(error);
-
         alert(
           error.response?.data?.error ||
           'Error cargando vehículos'
@@ -291,19 +277,11 @@ export default {
     },
 
     async loadClients() {
-
       try {
-
-        const response =
-          await api.get('/clients');
-
-        this.clients =
-          response.data?.clients || [];
-
+        const response = await clientService.getAll();
+        this.clients = response.data?.clients || [];
       } catch (error) {
-
         console.log(error);
-
         alert(
           error.response?.data?.error ||
           'Error cargando clientes'
@@ -312,84 +290,43 @@ export default {
     },
 
     filterVehicles() {
-
       if (!this.search) {
-
-        this.filteredVehicles =
-          this.vehicles;
-
+        this.filteredVehicles = this.vehicles;
         return;
       }
 
-      const text =
-        this.search.toLowerCase();
-
-      this.filteredVehicles =
-        this.vehicles.filter(v =>
-
-          v.placa?.toLowerCase().includes(text) ||
-
-          v.marca?.toLowerCase().includes(text) ||
-
-          v.modelo?.toLowerCase().includes(text)
-
-        );
+      const text = this.search.toLowerCase();
+      this.filteredVehicles = this.vehicles.filter(v =>
+        v.placa?.toLowerCase().includes(text) ||
+        v.marca?.toLowerCase().includes(text) ||
+        v.modelo?.toLowerCase().includes(text)
+      );
     },
 
     editVehicle(vehicle) {
-
-      this.editingVehicle =
-        vehicle;
-
+      this.editingVehicle = vehicle;
       this.form = {
-
-        cliente_id:
-          vehicle.cliente_id,
-
-        placa:
-          vehicle.placa,
-
-        marca:
-          vehicle.marca,
-
-        modelo:
-          vehicle.modelo,
-
-        anio:
-          vehicle.anio,
-
-        color:
-          vehicle.color || '',
-
-        kilometraje:
-          vehicle.kilometraje || '',
-
-        vin:
-          vehicle.vin || ''
+        cliente_id: vehicle.cliente_id,
+        placa: vehicle.placa,
+        marca: vehicle.marca,
+        modelo: vehicle.modelo,
+        anio: vehicle.anio,
+        color: vehicle.color || '',
+        kilometraje: vehicle.kilometraje || '',
+        vin: vehicle.vin || ''
       };
-
       this.showForm = true;
     },
 
     viewVehicle(vehicle) {
-
-      this.viewingVehicle =
-        vehicle;
+      this.viewingVehicle = vehicle;
     },
 
     closeForm() {
-
-      this.showForm =
-        false;
-
-      this.editingVehicle =
-        null;
-
-      this.error =
-        '';
-
+      this.showForm = false;
+      this.editingVehicle = null;
+      this.error = '';
       this.form = {
-
         cliente_id: '',
         placa: '',
         marca: '',
@@ -402,113 +339,57 @@ export default {
     },
 
     async saveVehicle() {
-
       this.loading = true;
-
       this.error = '';
 
       try {
-
         if (this.editingVehicle) {
-
-          await api.put(
-            `/vehicles/${this.editingVehicle.id}`,
-            this.form
-          );
-
+          await vehicleService.update(this.editingVehicle.id, this.form);
         } else {
-
-          await api.post(
-            '/vehicles',
-            this.form
-          );
+          await vehicleService.create(this.form);
         }
 
         this.closeForm();
-
         await this.loadVehicles();
-
       } catch (err) {
-
-  console.log('ERROR COMPLETO:', err);
-
-  console.log('STATUS:',
-    err.response?.status
-  );
-
-  console.log('DATA:',
-    err.response?.data
-  );
-
-  alert(
-    JSON.stringify(
-      err.response?.data ||
-      err.message,
-      null,
-      2
-    )
-  );
-
-  this.error =
-    err.response?.data?.error ||
-
-    err.response?.data?.message ||
-
-    'Error al guardar vehículo';
-} finally {
-
+        console.log('ERROR COMPLETO:', err);
+        console.log('STATUS:', err.response?.status);
+        console.log('DATA:', err.response?.data);
+        alert(
+          JSON.stringify(
+            err.response?.data || err.message,
+            null,
+            2
+          )
+        );
+        this.error =
+          err.response?.data?.error ||
+          err.response?.data?.message ||
+          'Error al guardar vehículo';
+      } finally {
         this.loading = false;
       }
     },
 
     async deleteVehicle(id) {
-
-      if (
-        !confirm(
-          '¿Eliminar vehículo?'
-        )
-      ) {
+      if (!confirm('¿Eliminar vehículo?')) {
         return;
       }
-
       try {
-
-        await api.delete(
-          `/vehicles/${id}`
-        );
-
+        await vehicleService.delete(id);
         await this.loadVehicles();
-
-        alert(
-          'Vehículo eliminado exitosamente'
-        );
-
+        alert('Vehículo eliminado exitosamente');
       } catch (error) {
-
         alert(
-
           error.response?.data?.error ||
-
           'Error eliminando vehículo'
         );
       }
     },
 
     formatKilometraje(km) {
-
-      if (!km) {
-        return 'N/A';
-      }
-
-      return (
-        km
-          .toString()
-          .replace(
-            /\B(?=(\d{3})+(?!\d))/g,
-            ','
-          ) +
-        ' km'
-      );
+      if (!km) return 'N/A';
+      return km.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' km';
     }
   }
 };

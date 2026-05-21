@@ -38,9 +38,7 @@
 </template>
 
 <script>
-import api from '@/services/api';
-
-const API_URL = process.env.VUE_APP_API_URL;
+import { clientPortalService } from '@/services/api';
 
 export default {
   name: 'NewAppointment',
@@ -59,10 +57,7 @@ export default {
   methods: {
     async loadMyVehicles() {
       try {
-        const token = localStorage.getItem('token');
-        const response = await api.get(`${API_URL}/client-portal/vehicles`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await clientPortalService.getMyVehicles();
         this.myVehicles = response.data.vehicles || [];
       } catch (error) {
         console.error('Error:', error);
@@ -72,10 +67,7 @@ export default {
       this.loading = true;
       this.error = '';
       try {
-        const token = localStorage.getItem('token');
-        await axios.post(`${API_URL}/client-portal/appointments`, this.form, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await clientPortalService.createMyAppointment(this.form);
         this.success = 'Cita solicitada exitosamente. Le confirmaremos pronto.';
         setTimeout(() => this.$router.push('/portal/appointments'), 2000);
       } catch (err) {

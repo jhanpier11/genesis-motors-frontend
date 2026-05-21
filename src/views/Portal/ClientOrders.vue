@@ -39,9 +39,7 @@
 </template>
 
 <script>
-import api from '@/services/api';
-
-const API_URL = process.env.VUE_APP_API_URL;
+import { clientPortalService } from '@/services/api';
 
 export default {
   name: 'ClientOrders',
@@ -54,13 +52,10 @@ export default {
   methods: {
     async loadOrders() {
       try {
-        const token = localStorage.getItem('token');
-        const response = await api.get(`${API_URL}/client-portal/orders`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await clientPortalService.getMyWorkOrders();
         this.orders = response.data.workOrders || [];
       } catch (error) {
-        console.error('Error:', error);
+        console.error('Error al cargar órdenes:', error);
       }
     },
     getStatusClass(status) {

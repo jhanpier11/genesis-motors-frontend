@@ -118,9 +118,7 @@
 </template>
 
 <script>
-import api from '@/services/api';
-
-const API_URL = process.env.VUE_APP_API_URL;
+import { userService } from '@/services/api';
 
 export default {
   name: 'UserList',
@@ -146,10 +144,7 @@ export default {
   methods: {
     async loadUsers() {
       try {
-        const token = localStorage.getItem('token');
-        const response = await api.get('/users', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await userService.getAll();
         this.users = response.data.users;
       } catch (error) {
         console.error('Error al cargar usuarios:', error);
@@ -183,19 +178,16 @@ export default {
       this.success = '';
       
       try {
-        const token = localStorage.getItem('token');
-        const config = { headers: { Authorization: `Bearer ${token}` } };
-        
         if (this.editingUser) {
           const updateData = {
             nombre: this.form.nombre,
             email: this.form.email,
             rol: this.form.rol
           };
-          await axios.put(`${API_URL}/users/${this.editingUser.id}`, updateData, config);
+          await userService.update(this.editingUser.id, updateData);
           this.success = 'Usuario actualizado exitosamente';
         } else {
-          await axios.post(`${API_URL}/users`, this.form, config);
+          await userService.create(this.form);
           this.success = 'Usuario creado exitosamente';
         }
         
@@ -214,12 +206,7 @@ export default {
       if (!confirm(`¿Está seguro de ${action} este usuario?`)) return;
       
       try {
-        const token = localStorage.getItem('token');
-        await axios.put(`${API_URL}/users/${user.id}`, {
-          activo: !user.activo
-        }, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await userService.update(user.id, { activo: !user.activo });
         this.loadUsers();
       } catch (error) {
         alert('Error al cambiar estado del usuario');

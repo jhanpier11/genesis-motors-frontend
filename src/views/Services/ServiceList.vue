@@ -93,9 +93,7 @@
 </template>
 
 <script>
-import api from '@/services/api';
-
-const API_URL = process.env.VUE_APP_API_URL;
+import { serviceService } from '@/services/api';
 
 export default {
   name: 'ServiceList',
@@ -126,10 +124,7 @@ export default {
     },
     async loadServices() {
       try {
-        const token = localStorage.getItem('token');
-        const response = await api.get('/services', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await serviceService.getAll();
         this.services = response.data.services;
       } catch (error) {
         console.error('Error al cargar servicios:', error);
@@ -161,13 +156,10 @@ export default {
       this.error = '';
       
       try {
-        const token = localStorage.getItem('token');
-        const config = { headers: { Authorization: `Bearer ${token}` } };
-        
         if (this.editingService) {
-          await axios.put(`${API_URL}/services/${this.editingService.id}`, this.form, config);
+          await serviceService.update(this.editingService.id, this.form);
         } else {
-          await axios.post(`${API_URL}/services`, this.form, config);
+          await serviceService.create(this.form);
         }
         
         this.closeForm();
@@ -182,10 +174,7 @@ export default {
       if (!confirm('¿Está seguro de desactivar este servicio?')) return;
       
       try {
-        const token = localStorage.getItem('token');
-        await axios.delete(`${API_URL}/services/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await serviceService.delete(id);
         this.loadServices();
       } catch (error) {
         alert('Error al eliminar servicio');

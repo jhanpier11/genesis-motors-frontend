@@ -46,118 +46,61 @@
 </template>
 
 <script>
-import api from '@/services/api';
+import { vehicleService, userService, workOrderService } from '@/services/api';
 
 export default {
   name: 'WorkOrderForm',
-
   data() {
     return {
       vehicles: [],
       mechanics: [],
       loading: false,
       error: '',
-
       form: {
         vehiculo_id: '',
         mecanico_id: '',
         diagnostico: ''
       }
-    }
+    };
   },
-
   created() {
     this.loadVehicles();
     this.loadMechanics();
   },
-
   methods: {
-
     async loadVehicles() {
-
       try {
-
-        const response =
-          await api.get('/vehicles');
-
-        this.vehicles =
-          response.data?.vehicles || [];
-
+        const response = await vehicleService.getAll();
+        this.vehicles = response.data?.vehicles || [];
       } catch (error) {
-
-        console.error(
-          'Error al cargar vehículos:',
-          error
-        );
-
+        console.error('Error al cargar vehículos:', error);
       }
-
     },
-
     async loadMechanics() {
-
       try {
-
-        const response =
-          await api.get('/users/mechanics');
-
-        this.mechanics =
-          response.data?.mechanics || [];
-
+        const response = await userService.getMechanics();
+        this.mechanics = response.data?.mechanics || [];
       } catch (error) {
-
-        console.error(
-          'Error al cargar mecánicos:',
-          error
-        );
-
+        console.error('Error al cargar mecánicos:', error);
       }
-
     },
-
     async saveWorkOrder() {
-
       this.loading = true;
-
       this.error = '';
-
       try {
-
-        console.log(
-          'Enviando orden:',
-          this.form
-        );
-
-        await api.post(
-          '/work-orders',
-          this.form
-        );
-
-        this.$router.push(
-          '/work-orders'
-        );
-
+        console.log('Enviando orden:', this.form);
+        await workOrderService.create(this.form);
+        this.$router.push('/work-orders');
       } catch (err) {
-
-        console.log(
-          'ERROR:',
-          err.response?.data
-        );
-
+        console.log('ERROR:', err.response?.data);
         this.error =
           err.response?.data?.error ||
           err.response?.data?.message ||
           'Error al crear orden';
-
       } finally {
-
         this.loading = false;
-
       }
-
     }
-
   }
-
-}
+};
 </script>

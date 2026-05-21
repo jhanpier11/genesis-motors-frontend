@@ -84,9 +84,7 @@
 </template>
 
 <script>
-import api from '@/services/api';
-
-const API_URL = process.env.VUE_APP_API_URL;
+import { workOrderService } from '@/services/api';
 
 export default {
   name: 'WorkOrderList',
@@ -104,15 +102,10 @@ export default {
   methods: {
     async loadWorkOrders() {
       try {
-        const token = localStorage.getItem('token');
         const params = {};
         if (this.filters.estado) params.estado = this.filters.estado;
-        
-        const response = await api.get('/work-orders', {
-          headers: { Authorization: `Bearer ${token}` },
-          params
-        });
-        // Asegúrate de que el backend envíe los datos en esta estructura
+
+        const response = await workOrderService.getAll(params);
         this.workOrders = response.data.workOrders || response.data;
       } catch (error) {
         console.error('Error al cargar órdenes:', error);
@@ -129,8 +122,15 @@ export default {
       return classes[status] || 'bg-secondary';
     },
     formatStatus(status) {
-      // Formatea el texto para que se vea mejor (ej: en_progreso -> En Progreso)
-      return status.replace('_', ' ').toUpperCase();
+      const statuses = {
+        'creada': 'Creada',
+        'en_progreso': 'En Progreso',
+        'pausada': 'Pausada',
+        'completada': 'Completada',
+        'entregada': 'Entregada',
+        'cancelada': 'Cancelada'
+      };
+      return statuses[status] || status.replace('_', ' ');
     }
   }
 }
