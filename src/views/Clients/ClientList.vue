@@ -141,9 +141,26 @@ export default {
           params: { search: this.search }
         });
         this.clients = response.data.clients;
-      } catch (error) {
-        console.error('Error al cargar clientes:', error);
-      }
+      }catch (error) {
+
+      console.log('ERROR COMPLETO:', error);
+
+      console.log('RESPONSE:', error.response);
+
+      console.log('DATA:', error.response?.data);
+
+      console.log('STATUS:', error.response?.status);
+
+      alert(
+      JSON.stringify(
+      error.response?.data ||
+      error.message,
+      null,
+      2
+      )
+      );
+
+}
     },
     editClient(client) {
       this.editingClient = client;
@@ -169,47 +186,86 @@ export default {
     async saveClient() {
       this.loading = true;
       this.error = '';
-      
+
       try {
-        const token = localStorage.getItem('token');
-        const config = { headers: { Authorization: `Bearer ${token}` } };
-        
+
         if (this.editingClient) {
-          await axios.put(`${API_URL}/clients/${this.editingClient.id}`, this.form, config);
+
+          await api.put(
+            `/clients/${this.editingClient.id}`,
+            this.form
+          );
+
         } else {
-          await axios.post(`${API_URL}/clients`, this.form, config);
+
+          await api.post(
+            '/clients',
+            this.form
+          );
+
         }
-        
+
         this.closeForm();
-        this.loadClients();
+
+        await this.loadClients();
+
+        swal.success(
+          'Éxito',
+          'Cliente guardado correctamente'
+        );
+
       } catch (err) {
-        this.error = err.response?.data?.error || 'Error al guardar cliente';
+
+        console.log(err);
+
+        this.error =
+          err.response?.data?.message ||
+          err.response?.data?.error ||
+          'Error al guardar cliente';
+
       } finally {
+
         this.loading = false;
+
       }
     },
     // En methods:
     async deleteClient(id) {
-      const result = await swal.confirm(
+
+        const result = await swal.confirm(
         '¿Eliminar cliente?',
-        'Esta acción no se puede deshacer. Se eliminarán todos los datos del cliente.'
-      );
-      
-      if (result.isConfirmed) {
+        'Esta acción no se puede deshacer'
+        );
+
+        if (!result.isConfirmed) return;
+
         try {
-          const token = localStorage.getItem('token');
-          await axios.delete(`${API_URL}/clients/${id}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          await this.loadClients();
-          swal.success('Eliminado', 'Cliente eliminado exitosamente');
-        } catch (error) {
-          swal.error('Error', 'No se pudo eliminar el cliente');
+
+        await api.delete(`/clients/${id}`);
+
+        await this.loadClients();
+
+        swal.success(
+        'Eliminado',
+        'Cliente eliminado correctamente'
+        );
+
         }
+        catch(err){
+
+        console.log(err);
+
+        swal.error(
+        'Error',
+        err.response?.data?.message ||
+        'No se pudo eliminar'
+        );
+
+        }
+
       }
     }
   }
-}
 </script>
 
 <style scoped>
