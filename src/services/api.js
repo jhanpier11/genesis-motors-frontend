@@ -109,6 +109,22 @@ export const vehicleService = {
 };
 
 // ======================
+// PORTAL DEL CLIENTE (vehículos, citas, órdenes)
+// ======================
+export const clientPortalService = {
+  // Vehículos del cliente
+  getMyVehicles: () => api.get('/client-portal/vehicles'),
+  addMyVehicle: (data) => api.post('/client-portal/vehicles', data),
+
+  // Citas del cliente
+  getMyAppointments: () => api.get('/client-portal/appointments'),
+  createMyAppointment: (data) => api.post('/client-portal/appointments', data),
+
+  // Órdenes del cliente
+  getMyWorkOrders: () => api.get('/client-portal/orders')
+};
+
+// ======================
 // CITAS
 // ======================
 
