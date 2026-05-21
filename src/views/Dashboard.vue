@@ -240,7 +240,7 @@
 import axios from 'axios';
 import Chart from 'chart.js/auto';
 
-const API_URL = 'import.meta.env.VITE_APP_API_URL';
+const API_URL = import.meta.env.VITE_APP_API_URL;
 
 export default {
   name: 'Dashboard',
@@ -259,6 +259,7 @@ export default {
       },
       recentAppointments: [],
       activeOrders: [],
+      recentActivities: [],
       currentDate: new Date().toLocaleDateString('es-PE', {
         weekday: 'long',
         year: 'numeric',
@@ -272,28 +273,82 @@ export default {
   },
   methods: {
     async loadDashboardData() {
-      try {
-        const token = localStorage.getItem('token');
-        const config = { headers: { Authorization: `Bearer ${token}` } };
-        
-        const [statsRes, appointmentsRes, ordersRes] = await Promise.all([
-          axios.get(`${API_URL}/dashboard/stats`, config),
-          axios.get(`${API_URL}/appointments`, { ...config, params: { estado: 'pendiente' } }),
-          axios.get(`${API_URL}/work-orders`, { ...config, params: { estado: 'en_progreso' } })
-        ]);
+        try {
+          const token = localStorage.getItem('token');
 
-        this.stats = statsRes.data.stats;
-        this.recentAppointments = (appointmentsRes.data.appointments || []).slice(0, 5);
-        this.activeOrders = (ordersRes.data.workOrders || []).slice(0, 5);
-        
-        // Llamamos al gráfico una vez que tenemos los datos
-        this.$nextTick(() => {
-          this.initChart();
-        });
-      } catch (error) {
-        console.error('Error al cargar dashboard:', error);
-      }
-    },
+          const config = {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          };
+
+          const [statsRes, appointmentsRes, ordersRes] =
+            await Promise.all([
+              axios.get(`${API_URL}/dashboard/stats`, config),
+
+              axios.get(
+                `${API_URL}/appointments`,
+                {
+                  ...config,
+                  params: {
+                    estado: 'pendiente'
+                  }
+                }
+              ),
+
+              axios.get(
+                `${API_URL}/work-orders`,
+                {
+                  ...config,
+                  params: {
+                    estado: 'en_progreso'
+                  }
+                }
+              )
+            ]);
+
+          this.stats =
+            statsRes.data?.stats || {
+              citasHoy: 0,
+              ordenesPendientes: 0,
+              ordenesCompletadas: 0,
+              clientesNuevos: 0,
+              creadas: 0,
+              enProgreso: 0,
+              completadas: 0,
+              entregadas: 0
+            };
+
+          this.recentAppointments =
+            (appointmentsRes.data?.appointments || [])
+            .slice(0, 5);
+
+          this.activeOrders =
+            (ordersRes.data?.workOrders || [])
+            .slice(0, 5);
+
+          this.$nextTick(() => {
+            this.initChart();
+          });
+
+        } catch (error) {
+          console.error(
+            'Error al cargar dashboard:',
+            error
+          );
+
+          this.stats = {
+            citasHoy: 0,
+            ordenesPendientes: 0,
+            ordenesCompletadas: 0,
+            clientesNuevos: 0,
+            creadas: 0,
+            enProgreso: 0,
+            completadas: 0,
+            entregadas: 0
+          };
+        }
+      },
     initChart() {
       const ctx = document.getElementById('ordersChart');
       if (ctx) {
