@@ -1,0 +1,10 @@
+{
+  "build": {
+    "env": {
+      "VUE_APP_API_URL": "https://genesis-motors-backend-9nr6.onrender.com/api"
+    }
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
