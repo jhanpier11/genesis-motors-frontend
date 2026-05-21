@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://genesis-motors-backend-9nr6.onrender.com/api';
+const API_URL = import.meta.env.VITE_APP_API_URL || 'http://localhost:3000/api';
 
 const api = axios.create({
   baseURL: 'https://genesis-motors-backend-9nr6.onrender.com',
