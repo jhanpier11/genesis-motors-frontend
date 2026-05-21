@@ -92,9 +92,7 @@
 </template>
 
 <script>
-import api from '@/services/api';
-
-const API_URL = process.env.VUE_APP_API_URL;
+import { clientPortalService } from '@/services/api';
 
 export default {
   name: 'ClientVehicles',
@@ -113,26 +111,20 @@ export default {
   methods: {
     async loadVehicles() {
       try {
-        const token = localStorage.getItem('token');
-        const response = await api.get(`${API_URL}/client-portal/vehicles`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await clientPortalService.getMyVehicles();
         this.vehicles = response.data.vehicles || [];
       } catch (error) {
-        console.error('Error:', error);
+        console.error('Error al cargar vehículos:', error);
       }
     },
     async addVehicle() {
       this.loading = true;
       this.error = '';
       try {
-        const token = localStorage.getItem('token');
-        await axios.post(`${API_URL}/client-portal/vehicles`, this.form, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await clientPortalService.addMyVehicle(this.form);
         this.showForm = false;
         this.form = { marca: '', modelo: '', anio: '', placa: '', color: '' };
-        this.loadVehicles();
+        await this.loadVehicles();
       } catch (err) {
         this.error = err.response?.data?.error || 'Error al registrar vehículo';
       } finally {
