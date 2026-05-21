@@ -1,12 +1,10 @@
 import axios from 'axios';
 
-const API_URL =
-  process.env.VUE_APP_API_URL ||
-  'https://genesis-motors-backend-9nr6.onrender.com/api';
-
+// Forzamos la URL base limpia sin el '/api' al final para que coincida con tus endpoints
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: 'https://genesis-motors-backend-9nr6.onrender.com', 
   timeout: 15000,
+  withCredentials: true, // 👈 ¡ESTO ES VITAL para eliminar el error 403!
   headers: {
     'Content-Type': 'application/json'
   }
