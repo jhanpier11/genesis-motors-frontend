@@ -259,8 +259,8 @@ export default {
       return ['admin', 'mecanico'].includes(user.rol);
     },
     canAssignMechanic() {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      return ['admin', 'recepcionista'].includes(user.rol);
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        return ['admin', 'recepcionista'].includes(user.rol);
     },
     canAddServices() {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -277,23 +277,20 @@ export default {
   },
   created() {
     this.loadWorkOrder();
+    // Solo carga la lista de mecánicos si el usuario puede asignarlos
     if (this.canAssignMechanic) {
         this.loadMechanics();
     }
     this.loadServices();
     },
-  methods: {
-    async loadWorkOrder() {
-      this.loading = true;
-      try {
-        const response = await workOrderService.getById(this.$route.params.id);
-        this.workOrder = response.data.workOrder;
-      } catch (error) {
-        console.error('Error al cargar orden:', error);
-        this.error = 'Error al cargar la orden de trabajo';
-      } finally {
-        this.loading = false;
-      }
+    methods: {
+    async loadMechanics() {
+        try {
+        const response = await userService.getMechanics();
+        this.mechanics = response.data.mechanics || [];
+        } catch (error) {
+        console.error('Error al cargar mecánicos:', error);
+        }
     },
     async loadMechanics() {
       try {
