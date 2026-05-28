@@ -19,7 +19,7 @@ import AppointmentForm from './views/Appointments/AppointmentForm.vue'
 import AppointmentCalendar from './views/Appointments/AppointmentCalendar.vue'
 import WorkOrderList from './views/WorkOrders/WorkOrderList.vue'
 import WorkOrderForm from './views/WorkOrders/WorkOrderForm.vue'
-import WorkOrderDetail from './views/WorkOrders/WorkOrderDetail.vue/index.js'
+import WorkOrderDetail from './views/WorkOrderDetail.vue'
 import ServiceList from './views/Services/ServiceList.vue'
 import UserList from './views/Users/UserList.vue'
 
