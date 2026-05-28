@@ -66,19 +66,18 @@
                 </td>
                 <td>
                   <!-- Botones de acción -->
-                  <button 
+                  <button
                     v-if="appointment.estado === 'pendiente'"
-                    class="btn btn-sm btn-success me-1" 
+                    class="btn btn-sm btn-success me-1"
                     @click="updateStatus(appointment.id, 'confirmada')"
-                    title="Confirmar"
                   >
                     <i class="fas fa-check"></i>
                   </button>
-                  <button 
+
+                  <button
                     v-if="['pendiente', 'confirmada'].includes(appointment.estado)"
-                    class="btn btn-sm btn-danger" 
+                    class="btn btn-sm btn-danger"
                     @click="cancelAppointment(appointment.id)"
-                    title="Cancelar"
                   >
                     <i class="fas fa-times"></i>
                   </button>
