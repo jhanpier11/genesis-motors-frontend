@@ -277,9 +277,11 @@ export default {
   },
   created() {
     this.loadWorkOrder();
-    this.loadMechanics();
+    if (this.canAssignMechanic) {
+        this.loadMechanics();
+    }
     this.loadServices();
-  },
+    },
   methods: {
     async loadWorkOrder() {
       this.loading = true;
