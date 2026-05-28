@@ -277,7 +277,6 @@ export default {
   },
   created() {
     this.loadWorkOrder();
-    // Solo carga la lista de mecánicos si el usuario puede asignarlos
     if (this.canAssignMechanic) {
         this.loadMechanics();
     }
