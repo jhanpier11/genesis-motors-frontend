@@ -141,8 +141,7 @@ export const appointmentService = {
   updateStatus: (id, data) =>
     api.patch(`/appointments/${id}/status`, data),
 
-  cancel: (id, motivo) =>
-    api.patch('/appointments/${id}/cancel', { motivo })
+  cancel: (id, motivo) => api.patch(`/appointments/${id}/cancel`, { motivo })
 };
 
 // ======================
