@@ -61,10 +61,11 @@
                 <td>{{ appointment.vehiculo?.marca }} {{ appointment.vehiculo?.modelo }}</td>
                 <td>
                   <span :class="getStatusClass(appointment.estado)" class="badge">
-                    {{ appointment.estado }}
+                    {{ formatStatus(appointment.estado) }}
                   </span>
                 </td>
                 <td>
+                  <!-- Botones de acción -->
                   <button 
                     v-if="appointment.estado === 'pendiente'"
                     class="btn btn-sm btn-success me-1" 
@@ -81,6 +82,22 @@
                   >
                     <i class="fas fa-times"></i>
                   </button>
+                  <button 
+                    v-if="appointment.estado === 'confirmada'"
+                    class="btn btn-sm btn-primary me-1" 
+                    @click="updateStatus(appointment.id, 'en_progreso')"
+                    title="Iniciar"
+                  >
+                    <i class="fas fa-play"></i>
+                  </button>
+                  <button 
+                    v-if="appointment.estado === 'en_progreso'"
+                    class="btn btn-sm btn-success me-1" 
+                    @click="updateStatus(appointment.id, 'completada')"
+                    title="Completar"
+                  >
+                    <i class="fas fa-check-double"></i>
+                  </button>
                 </td>
               </tr>
               <tr v-if="appointments.length === 0">
@@ -95,19 +112,14 @@
 </template>
 
 <script>
-import api from '@/services/api';
-
-const API_URL = process.env.VUE_APP_API_URL;
+import { appointmentService } from '@/services/api';
 
 export default {
   name: 'AppointmentList',
   data() {
     return {
       appointments: [],
-      filters: {
-        fecha: '',
-        estado: ''
-      }
+      filters: { fecha: '', estado: '' }
     }
   },
   created() {
@@ -116,31 +128,22 @@ export default {
   methods: {
     async loadAppointments() {
       try {
-        const token = localStorage.getItem('token');
         const params = {};
-        
         if (this.filters.fecha) params.fecha = this.filters.fecha;
         if (this.filters.estado) params.estado = this.filters.estado;
         
-        const response = await api.get('/appointments', {
-          headers: { Authorization: `Bearer ${token}` },
-          params
-        });
-        this.appointments = response.data.appointments;
+        const response = await appointmentService.getAll(params);
+        this.appointments = response.data.appointments || [];
       } catch (error) {
         console.error('Error al cargar citas:', error);
       }
     },
     async updateStatus(id, estado) {
       try {
-        const token = localStorage.getItem('token');
-        await axios.patch(`${API_URL}/appointments/${id}/status`, 
-          { estado },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        await appointmentService.updateStatus(id, { estado });
         this.loadAppointments();
       } catch (error) {
-        alert('Error al actualizar cita');
+        alert('Error al actualizar cita: ' + (error.response?.data?.error || ''));
       }
     },
     async cancelAppointment(id) {
@@ -148,11 +151,7 @@ export default {
       if (!motivo) return;
       
       try {
-        const token = localStorage.getItem('token');
-        await axios.patch(`${API_URL}/appointments/${id}/cancel`,
-          { motivo },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        await appointmentService.cancel(id, motivo);
         this.loadAppointments();
       } catch (error) {
         alert('Error al cancelar cita');
@@ -165,11 +164,8 @@ export default {
     formatDate(date) {
       if (!date) return 'N/A';
       return new Date(date).toLocaleString('es-PE', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit'
       });
     },
     getStatusClass(status) {
@@ -181,6 +177,16 @@ export default {
         'cancelada': 'bg-danger'
       };
       return classes[status] || 'bg-secondary';
+    },
+    formatStatus(status) {
+      const statuses = {
+        'pendiente': 'Pendiente',
+        'confirmada': 'Confirmada',
+        'en_progreso': 'En Progreso',
+        'completada': 'Completada',
+        'cancelada': 'Cancelada'
+      };
+      return statuses[status] || status;
     }
   }
 }
