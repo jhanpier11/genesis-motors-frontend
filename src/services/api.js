@@ -203,7 +203,7 @@ export const userService = {
   update: (id, data) => api.put(`/users/${id}`, data),
   getMechanics: () => api.get('/users/mechanics'),
   delete: (id) => api.delete(`/users/${id}`),                     // desactivar (ya existe)
-deletePermanent: (id) => api.delete(`/users/${id}/permanent`), // eliminar (nuevo)
+  deletePermanent: (id) => api.delete(`/users/${id}/permanent`),
 
   // NUEVOS MÉTODOS PARA PERFIL
   updateProfile: (data) => api.put('/users/profile/update', data),

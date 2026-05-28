@@ -232,9 +232,8 @@ export default {
       if (!confirm(`¿Eliminar definitivamente a ${user.nombre}? Esta acción NO se puede deshacer.`)) {
         return;
       }
-
       try {
-        await userService.deletePermanent(user.id); // Aún no existe en el servicio, ver abajo
+        await userService.deletePermanent(user.id);
         this.loadUsers();
         alert('Usuario eliminado permanentemente');
       } catch (error) {
