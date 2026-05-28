@@ -283,6 +283,21 @@ export default {
     this.loadServices();
     },
     methods: {
+    
+
+    async loadWorkOrder() {
+      this.loading = true;
+      try {
+        const response = await workOrderService.getById(this.$route.params.id);
+        this.workOrder = response.data.workOrder;
+      } catch (error) {
+        console.error('Error al cargar orden:', error);
+        this.error = 'Error al cargar la orden de trabajo';
+      } finally {
+        this.loading = false;
+      }
+    },
+    
     async loadMechanics() {
         try {
         const response = await userService.getMechanics();
