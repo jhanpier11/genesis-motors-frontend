@@ -206,7 +206,7 @@ export const userService = {
 
   // NUEVOS MÉTODOS PARA PERFIL
   updateProfile: (data) => api.put('/users/profile/update', data),
-  changePassword: (data) => api.put('/users/change-password', data)
+  changePassword: (data) => api.put(`/users/change-password`, data),
 };
 // ======================
 // DASHBOARD
