@@ -341,31 +341,19 @@ export default {
     async saveVehicle() {
       this.loading = true;
       this.error = '';
-
       try {
         if (this.editingVehicle) {
           await vehicleService.update(this.editingVehicle.id, this.form);
         } else {
           await vehicleService.create(this.form);
         }
-
         this.closeForm();
         await this.loadVehicles();
       } catch (err) {
         console.log('ERROR COMPLETO:', err);
         console.log('STATUS:', err.response?.status);
         console.log('DATA:', err.response?.data);
-        alert(
-          JSON.stringify(
-            err.response?.data || err.message,
-            null,
-            2
-          )
-        );
-        this.error =
-          err.response?.data?.error ||
-          err.response?.data?.message ||
-          'Error al guardar vehículo';
+        this.error = err.response?.data?.error || err.response?.data?.message || 'Error al guardar vehículo';
       } finally {
         this.loading = false;
       }

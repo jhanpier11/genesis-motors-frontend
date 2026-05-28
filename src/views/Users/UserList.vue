@@ -54,6 +54,22 @@
                   >
                     <i :class="user.activo ? 'fas fa-ban' : 'fas fa-check'"></i>
                   </button>
+
+
+
+
+                  <button 
+                    class="btn btn-sm btn-danger ms-1" 
+                    @click="deleteUserPermanently(user)"
+                    title="Eliminar permanentemente"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+
+
+
+
+
                 </td>
               </tr>
               <tr v-if="users.length === 0">
@@ -210,6 +226,19 @@ export default {
         this.loadUsers();
       } catch (error) {
         alert('Error al cambiar estado del usuario');
+      }
+    },
+    async deleteUserPermanently(user) {
+      if (!confirm(`¿Eliminar definitivamente a ${user.nombre}? Esta acción NO se puede deshacer.`)) {
+        return;
+      }
+
+      try {
+        await userService.deletePermanent(user.id); // Aún no existe en el servicio, ver abajo
+        this.loadUsers();
+        alert('Usuario eliminado permanentemente');
+      } catch (error) {
+        alert(error.response?.data?.error || 'Error al eliminar usuario');
       }
     },
     getRoleClass(rol) {

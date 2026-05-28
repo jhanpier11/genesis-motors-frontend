@@ -6,7 +6,7 @@ const API_URL =
 
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 15000,
+  timeout: 45000,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -201,8 +201,9 @@ export const userService = {
   getAll: () => api.get('/users'),
   create: (data) => api.post('/users', data),
   update: (id, data) => api.put(`/users/${id}`, data),
-  delete: (id) => api.delete(`/users/${id}`),
   getMechanics: () => api.get('/users/mechanics'),
+  delete: (id) => api.delete(`/users/${id}`),                     // desactivar (ya existe)
+deletePermanent: (id) => api.delete(`/users/${id}/permanent`), // eliminar (nuevo)
 
   // NUEVOS MÉTODOS PARA PERFIL
   updateProfile: (data) => api.put('/users/profile/update', data),
