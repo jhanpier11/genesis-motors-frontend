@@ -142,6 +142,29 @@ export default {
       try {
         await appointmentService.updateStatus(id, { estado });
         this.loadAppointments();
+        alert('Estado actualizado correctamente');
+      } catch (error) {
+        console.error('Error:', error);
+        alert(error.response?.data?.error || 'Error al actualizar cita');
+      }
+    },
+    async cancelAppointment(id) {
+      const motivo = prompt('Motivo de cancelación:');
+      if (!motivo) return;
+      
+      try {
+        await appointmentService.cancel(id, motivo);
+        this.loadAppointments();
+        alert('Cita cancelada');
+      } catch (error) {
+        console.error('Error:', error);
+        alert(error.response?.data?.error || 'Error al cancelar cita');
+      }
+    },
+    async updateStatus(id, estado) {
+      try {
+        await appointmentService.updateStatus(id, { estado });
+        this.loadAppointments();
       } catch (error) {
         alert('Error al actualizar cita: ' + (error.response?.data?.error || ''));
       }
