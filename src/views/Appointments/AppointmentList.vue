@@ -161,25 +161,6 @@ export default {
         alert(error.response?.data?.error || 'Error al cancelar cita');
       }
     },
-    async updateStatus(id, estado) {
-      try {
-        await appointmentService.updateStatus(id, { estado });
-        this.loadAppointments();
-      } catch (error) {
-        alert('Error al actualizar cita: ' + (error.response?.data?.error || ''));
-      }
-    },
-    async cancelAppointment(id) {
-      const motivo = prompt('Motivo de cancelación:');
-      if (!motivo) return;
-      
-      try {
-        await appointmentService.cancel(id, motivo);
-        this.loadAppointments();
-      } catch (error) {
-        alert('Error al cancelar cita');
-      }
-    },
     clearFilters() {
       this.filters = { fecha: '', estado: '' };
       this.loadAppointments();
