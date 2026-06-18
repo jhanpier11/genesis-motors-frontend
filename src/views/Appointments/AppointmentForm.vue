@@ -7,8 +7,8 @@
         <form @submit.prevent="saveAppointment">
           <!-- Cliente -->
           <div class="mb-3">
-            <label class="form-label">Cliente *</label>
-            <select v-model="form.cliente_id" class="form-select" required @change="loadVehicles">
+              <label class="form-label" for="cliente">Cliente</label>
+              <select id="cliente" v-model="form.cliente_id" class="form-select" required @change="loadVehicles">
               <option value="">Seleccionar cliente...</option>
               <option v-for="client in clients" :key="client.id" :value="client.id">
                 {{ client.nombre }} - {{ client.telefono || 'Sin teléfono' }}
